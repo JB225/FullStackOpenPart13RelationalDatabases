@@ -6,10 +6,12 @@ const { PORT } = require('./src/util/config')
 const { connectToDatabase } = require('./src/util/db')
 
 const blogsRouter = require('./src/controllers/blogs')
+const usersRouter = require('./src/controllers/users')
 
 app.use(express.json())
 
 app.use('/api/blogs', blogsRouter)
+app.use('/api/users', usersRouter)
 
 const errorHandler = (error, request, response, next) => {
     console.error(error.message)
