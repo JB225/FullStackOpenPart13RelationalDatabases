@@ -24,9 +24,10 @@ router.put('/:username', async (req, res) => {
             username: req.params.username
         }
     })
+    user.username = req.body.username
+    await user.save()
+
     if (user) {
-        user.username = req.body.username
-        user.save()
         res.json(user)
     } else {
         res.status(404).end()
