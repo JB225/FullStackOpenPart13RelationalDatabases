@@ -24,6 +24,10 @@ const errorHandler = (error, request, response, next) => {
         return response.status(400).send({ error: 'Given username is not a valid email address'})
     }
 
+    if (error.name === 'SequelizeValidationError' && (error.message.includes('min') || error.message.includes('max')) && error.message.includes('year')) {
+        return response.status(400).send({ error: 'Given year field is not in the valid range'})
+    }
+
     next(error)
 }
 app.use(errorHandler)
