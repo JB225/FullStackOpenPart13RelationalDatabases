@@ -1,15 +1,15 @@
 const { ReadingList } = require('../models')
 const router = require('express').Router()
-const { tokenExtractor } = require('../util/tokenUtilities')
+const { authenticateUser } = require('../util/authUtilities')
 
 router.post('/', async (req, res) => {
     const readingListItem = await ReadingList.create(req.body)
     res.json(readingListItem)
 })
 
-router.put('/:id', tokenExtractor, async(req, res) => {
+router.put('/:id', authenticateUser, async(req, res) => {
     const reading = await ReadingList.findByPk(req.params.id)
-    if (reading.userId === req.decodedToken.id) {
+    if (reading.userId === req.session.user.id) {
         reading.read = req.body.read
         reading.save()
         res.json(reading)

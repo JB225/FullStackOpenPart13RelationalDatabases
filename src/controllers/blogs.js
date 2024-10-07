@@ -3,7 +3,7 @@ const { Op } = require('sequelize')
 
 const { Blog, User } = require('../models')
 const { DATE } = require('sequelize')
-const { tokenExtractor } = require('../util/tokenUtilities')
+const { authenticateUser } = require('../util/authUtilities')
 
 router.get('/', async(req, res) => {
     let where = {}
@@ -30,8 +30,8 @@ router.get('/', async(req, res) => {
     res.json(blogs)
 })
 
-router.post('/', tokenExtractor, async(req, res) => {
-    const user = await User.findByPk(req.decodedToken.id)
+router.post('/', authenticateUser, async(req, res) => {
+    const user = await User.findByPk(req.session.user.id)
     const blog = await Blog.create({ ...req.body, userId: user.id, date: new DATE() })
     res.json(blog)
 })
@@ -51,10 +51,10 @@ router.put('/:id', blogFinder, async(req, res) => {
     }
 })
 
-router.delete('/:id', blogFinder, tokenExtractor, async(req, res) => {
+router.delete('/:id', blogFinder, authenticateUser, async(req, res) => {
     if (!req.blog) {
         res.status(404).end()
-    } else if (req.blog.userId !== req.decodedToken.id) {
+    } else if (req.blog.userId !== req.session.user.id) {
         res.status(401).end()
     } else {
         req.blog.destroy()

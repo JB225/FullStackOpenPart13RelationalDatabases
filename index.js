@@ -1,23 +1,36 @@
 const express = require('express')
+const session = require('express-session')
 require('express-async-errors')
 const app = express()
 
-const { PORT } = require('./src/util/config')
-const { connectToDatabase } = require('./src/util/db')
+const { PORT, SECRET } = require('./src/util/config')
+const { connectToDatabase, sequelize } = require('./src/util/db')
 
 const blogsRouter = require('./src/controllers/blogs')
 const usersRouter = require('./src/controllers/users')
 const loginRouter = require('./src/controllers/login')
 const authorRouter = require('./src/controllers/authors')
 const readingListRouter = require('./src/controllers/readingList')
+const logoutRouter = require('./src/controllers/logout')
+
+var SequelizeStore = require("connect-session-sequelize")(session.Store);
 
 app.use(express.json())
+
+app.use(session({
+    secret: SECRET,
+    store: new SequelizeStore({ db: sequelize, table: 'session'}),
+    resave: false,
+    proxy: false,
+    saveUninitialized: true
+}))
 
 app.use('/api/blogs', blogsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
 app.use('/api/authors', authorRouter)
 app.use('/api/readingLists', readingListRouter)
+app.use('/api/logout', logoutRouter)
 
 const errorHandler = (error, request, response, next) => {
     if (error.name === 'SequelizeValidationError' && error.message.includes('isEmail') && error.message.includes('username')) {

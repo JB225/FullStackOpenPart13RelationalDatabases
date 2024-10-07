@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt')
 const router = require('express').Router()
 const { User, Blog } = require('../models')
-const { Op } = require('sequelize')
 
 router.get('/', async (req, res) => {
     const users = await User.findAll({
